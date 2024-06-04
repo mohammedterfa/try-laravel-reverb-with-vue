@@ -1,9 +1,9 @@
 <template>
     <div class="flex flex-col">
       <div class="flex-1 overflow-y-auto">
-        <div v-for="message in messages" :key="message.id" class="flex items-start p-4 mb-2" :class="message.sender === 'user' ? 'justify-end' : 'justify-start'">
-          <div class="max-w-[80%] rounded-lg p-4" :class="message.sender === 'user' ? 'bg-blue-200' : 'bg-gray-200'">
-            {{ message.content }}
+        <div v-for="message in messages" :key="message.id" class="flex items-start p-4 mb-2" :class="message.sender_id === currentUser.id ? 'justify-end' : 'justify-start'">
+          <div class="max-w-[80%] rounded-lg p-4" :class="message.sender_id === currentUser.id ? 'bg-blue-300' : 'bg-gray-200'">
+            {{ message.text }}
           </div>
         </div>
       </div>
@@ -15,12 +15,21 @@
   </template>
 
   <script setup>
-  import { ref } from 'vue';
+    import axios from 'axios';
+    import { onMounted, ref } from 'vue';
 
-  const messages = ref([
-    { id: 1, content: 'Hello!', sender: 'bot' },
-    { id: 2, content: 'How can I help you?', sender: 'bot' }
-  ]);
+    const props = defineProps({
+        friend: {
+            type: Object,
+            required: true,
+        },
+        currentUser: {
+            type: Object,
+            required: true,
+        }
+    });
+
+  const messages = ref([]);
   const newMessage = ref('');
 
   const sendMessage = () => {
@@ -29,4 +38,11 @@
       newMessage.value = '';
     }
   };
+
+  onMounted(() => {
+    axios.get(`/messages/${props.friend.id}`).then((response) => {
+        console.log(response.data);
+        messages.value = response.data;
+    });
+  });
   </script>
