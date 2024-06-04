@@ -21,11 +21,13 @@
                             </thead>
                             <tbody>
                                 @foreach($users as $user)
+
                                     <tr class="text-center">
-                                        <td class="border px-4 py-2">{{ $user->name }}</td>
+                                        <td class="border px-4 py-2"><a href="{{ route('chat', $user) }}">{{ $user->name }}</a></td>
                                         <td class="border px-4 py-2">{{ $user->email }}</td>
                                         <td class="border px-4 py-2">{{ $user->created_at }}</td>
                                     </tr>
+
                                 @endforeach
                             </tbody>
                         </table>
