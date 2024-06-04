@@ -1,8 +1,8 @@
 <template>
-    <div class="flex flex-col">
-      <div class="flex-1 overflow-y-auto">
-        <div v-for="message in messages" :key="message.id" class="flex items-start p-4 mb-2" :class="message.sender_id === currentUser.id ? 'justify-end' : 'justify-start'">
-          <div class="max-w-[80%] rounded-lg p-4" :class="message.sender_id === currentUser.id ? 'bg-blue-300' : 'bg-gray-200'">
+    <div class="flex flex-col" >
+      <div ref="messagesContainer" class="flex-1 overflow-y-auto">
+        <div  v-for="message in messages" :key="message.id" class="flex items-start p-4 mb-2" :class="message.sender_id === currentUser.id ? 'justify-end' : 'justify-start'">
+          <div  class="max-w-[80%] rounded-lg p-4" :class="message.sender_id === currentUser.id ? 'bg-blue-300' : 'bg-gray-200'">
             {{ message.text }}
           </div>
         </div>
@@ -16,7 +16,9 @@
 
   <script setup>
     import axios from 'axios';
-    import { onMounted, ref } from 'vue';
+    import Echo from 'laravel-echo';
+
+    import { nextTick, onMounted, ref, watch } from 'vue';
 
     const props = defineProps({
         friend: {
@@ -32,6 +34,16 @@
   const messages = ref([]);
   const newMessage = ref('');
 
+  const messagesContainer = ref(null);
+
+  watch(messages, () => {
+    nextTick(() => {
+        messagesContainer.value.scrollTo({
+        top: messagesContainer.value.scrollHeight,
+        behavior: "smooth"
+    });
+    });
+  }, {deep: true})
   const sendMessage = () => {
     axios.post(`/messages/${props.friend.id}`, {
         text: newMessage.value,
@@ -46,5 +58,10 @@
         console.log(response.data);
         messages.value = response.data;
     });
+
+    window.Echo.private(`Chat.${props.currentUser.id}`)
+        .listen('MessageSent', (response) => {
+            messages.value.push(response.message);
+        });
   });
   </script>
