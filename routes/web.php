@@ -37,4 +37,15 @@ Route::get('/messages/{friend}', function (User $friend) {
         ->get();
 })->middleware(['auth'])->name('messages');
 
+
+Route::post('/messages/{friend}', function (User $friend) {
+    $message = ChatMessage::create([
+        'sender_id' => auth()->id(),
+        'receiver_id' => $friend->id,
+        'text' => request()->input('text')
+    ]);
+
+    return $message;
+});
+
 require __DIR__.'/auth.php';

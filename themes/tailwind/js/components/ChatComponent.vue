@@ -33,10 +33,12 @@
   const newMessage = ref('');
 
   const sendMessage = () => {
-    if (newMessage.value.trim() !== '') {
-      messages.value.push({ id: Date.now(), content: newMessage.value, sender: 'user' });
-      newMessage.value = '';
-    }
+    axios.post(`/messages/${props.friend.id}`, {
+        text: newMessage.value,
+    }).then(response => {
+        messages.value.push(response.data);
+        newMessage.value = '';
+    });
   };
 
   onMounted(() => {
